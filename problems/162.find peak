@@ -1,0 +1,24 @@
+峰值元素是指其值大于左右相邻值的元素。
+
+给定一个输入数组nums，其中 nums[i] ≠ nums[i+1]，找到峰值元素并返回其索引。
+
+数组可能包含多个峰值，在这种情况下，返回任何一个峰值所在位置即可。
+
+你可以假设，nums[-1] = nums[n] = -∞。
+解题思路，由于峰值一定存在（且可能有不止一个峰值），而我们只要返回一个峰值就可以了 
+这题更加告诉我们二分是一种手段，由于left==right为最后的退出条件
+也是我们要返回的位置，所以不需要用if判断当前值是不是大于左值小于右值
+如果mid小于右值，说明右边一定有一个峰值（因为nums【n】= 负无穷），则我们向右找，反之向左找 
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        int left = 0, right = nums.size() - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2; //在有了中间值以后我们直接和它右边的比较 
+            if (nums[mid] < nums[mid + 1]) left = mid + 1; //如果中值小于它右边的值，说明右半边存在峰值 
+            else right = mid;                             //反之，左半边一定有峰值 
+        }
+        return right;
+    }
+};
+
