@@ -1,0 +1,47 @@
+给定一个32位正整数n，你需要找到最小的32位整数，其与n中存在的位数完全相同，并且其值大于n
+如果不存在这样的32位整数，则返回-1。
+
+示例 1:
+
+输入: 12
+输出: 21
+
+考察的是下一个排列，和第31题如出一辙，我们先把给定n转换为字符串，然后求他的下一个排列
+方法就是从末尾开始遍历，我们期望的顺序是升序的，遇到破坏因子，记录 下他的位置i-1，然后再从末尾开始 遍历
+知道遇到 第一个大于破坏因子的数，交换他们的值，在reverse(s.begin() + i, s.end())即可
+最后s转为长整型的数字，如果大于 INT_MAX或则没有变化,则返回-1
+代码如下，注意完成交换和逆序之后都要立即break 
+
+class Solution {
+public:
+    int nextGreaterElement(int n) {
+        if(n <= 10)
+        {
+            return -1;
+        }
+        string s = to_string(n);
+        for(int i = s.size() - 1; i > 0; --i)
+        {
+            if(s[i - 1] < s[i])
+            {
+                int index = i - 1;
+                for(int j = s.size() - 1; j > index; --j)
+                {
+                    if(s[j] > s[index])
+                    {
+                        swap(s[j], s[index]);
+                        break;
+                    }
+                }
+                reverse(s.begin() + index + 1, s.end());
+                break;
+            }
+        }
+        long res = stol(s);
+        if(res > INT_MAX || res == n) //等于的情况就是从尾到头是升序的，没有发生任何交换和逆序 
+        {
+            return -1;
+        }
+        return res;        
+    }
+};
