@@ -1,7 +1,7 @@
 给定一个二维网格和一个单词，找出该单词是否存在于网格中。
 
-单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格
-。同一个单元格内的字母不允许被重复使用。
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。
+同一个单元格内的字母不允许被重复使用。
 
 示例:
 
@@ -14,32 +14,56 @@ board =
 
 给定 word = "ABCCED", 返回 true.
 给定 word = "SEE", 返回 true.
-给定 word = "ABCB", 返回 false。
+给定 word = "ABCB", 返回 false.
 
-
+这是一道典型的回溯，回溯中必然会用到递归，但是回溯又不完全是简简单单的DFS，回溯之所以叫回溯 
+是因为，它在返回的时候 必然会进行一些剪枝的操作。所以常常会配合visited来标记已访问，（访问过后解除已访问） 
+做这种题目 我们一定 明确 递归的出口有什么（往往不止一个）
+然后在考虑递归式子该怎么写
+代码
 class Solution {
 public:
     bool exist(vector<vector<char>>& board, string word) {
-        if (board.empty() || board[0].empty()) return false;
+        if(board.empty() || board[0].empty()) //首先特判不为空 
+        {
+            return false;
+        }
         int m = board.size(), n = board[0].size();
-        vector<vector<bool>> visited(m, vector<bool>(n));
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (search(board, word, 0, i, j, visited)) return true;
+       vector<vector<bool> > visited(m,vector<bool>(n, false)); //visited数组（根据题目意思设计成二维的这题） 
+        for(int i = 0;  i < m; i++)
+        {
+            for(int j = 0; j < n; j++)
+            {
+                if(backtrace(board, word, 0, i, j, visited))  //如果回溯返回true，则说明找到了， 
+                {
+                    return true;
+                }
             }
         }
         return false;
     }
-    bool search(vector<vector<char>>& board, string word, int idx, int i, int j, vector<vector<bool>>& visited) {
-        if (idx == word.size()) return true;
-        int m = board.size(), n = board[0].size();
-        if (i < 0 || j < 0 || i >= m || j >= n || visited[i][j] || board[i][j] != word[idx]) return false;
-        visited[i][j] = true;
-        bool res = search(board, word, idx + 1, i - 1, j, visited) 
-                 || search(board, word, idx + 1, i + 1, j, visited)
-                 || search(board, word, idx + 1, i, j - 1, visited)
-                 || search(board, word, idx + 1, i, j + 1, visited);
-        visited[i][j] = false;
-        return res;
+    bool backtrace(vector<vector<char> > &board, string &word, int index, int i, int j, vector<vector<bool> > &visited)
+    {
+        if(index == word.size()) //如果递归的深度已经到达了index == word.size()则说明找到，返回true 
+        {
+            return true;   
+        }
+         //满足以下任何一种都返回false，如越界了，访问已访问，访问的不是我们想找到元素 
+        if(i < 0 || j < 0 || i >= board.size() || j >= board[0].size() || board[i][j] != word[index] || visited[i][j])
+        {
+            return false;
+        }
+        visited[i][j] = true;  //标记已访问
+		 
+        //我们向上下左右四个方向试探,至于成不成，我们不用去管它，我们就这样移动，成不成给递归出口判断
+		//所以我们在最前面有两个递归出口，分别对应true and false， 
+		//所以res是四个方向或的结果 
+        bool res = (backtrace(board, word, index + 1, i + 1, j, visited) 
+                   || backtrace(board, word, index + 1, i - 1, j, visited)
+                   || backtrace(board, word, index + 1, i, j - 1, visited)
+                   || backtrace(board, word, index + 1, i, j + 1, visited)
+                    ); 
+        visited[i][j] = false; //退出 这层 递归 就解除已访问状态，在返回上一次的时候还原为false(未访问): 
+        return res;          //返回res，（函数有返回值的） 
     }
 };
